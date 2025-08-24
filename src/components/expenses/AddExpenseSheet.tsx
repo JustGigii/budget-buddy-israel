@@ -276,7 +276,11 @@ export function AddExpenseSheet({ children }: AddExpenseSheetProps) {
                 <FormItem>
                   <FormLabel>הערות (אופציונלי)</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="הערות נוספות..." {...field} />
+                    <Textarea 
+                      placeholder="הערות נוספות..." 
+                      className="min-h-[60px] resize-none" 
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
