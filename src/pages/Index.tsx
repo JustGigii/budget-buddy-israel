@@ -23,12 +23,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen gradient-warm">
-      <Header 
-        onAddExpense={() => setShowAddExpense(true)}
-        onOpenSettings={() => {}}
-      />
-      
-      <main className="container mx-auto px-4 py-6 space-y-6">
+      <div className="container mx-auto px-4 py-6 space-y-6">
         {/* Balance Card - Main focus */}
         <BalanceCard />
         
@@ -75,17 +70,17 @@ const Index = () => {
             <BudgetOverview />
           </div>
         </div>
-      </main>
 
-      {/* Floating Add Button */}
-      <AddExpenseSheet>
-        <Button 
-          className="fixed bottom-6 left-6 h-14 w-14 rounded-full gradient-primary shadow-float hover:shadow-elegant transition-bounce z-50"
-          size="icon"
-        >
-          <Plus className="h-6 w-6" />
-        </Button>
-      </AddExpenseSheet>
+        {/* Floating Add Button */}
+        <AddExpenseSheet>
+          <Button 
+            className="fixed bottom-6 right-6 h-14 w-14 rounded-full gradient-primary shadow-float hover:shadow-elegant transition-bounce z-50"
+            size="icon"
+          >
+            <Plus className="h-6 w-6" />
+          </Button>
+        </AddExpenseSheet>
+      </div>
     </div>
   );
 };
