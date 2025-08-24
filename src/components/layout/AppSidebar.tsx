@@ -1,12 +1,8 @@
-import { useState } from "react";
 import { 
   Home, 
   Receipt, 
-  PieChart, 
-  Users, 
-  Settings,
   Wallet,
-  TrendingUp
+  Settings
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 
@@ -25,12 +21,8 @@ import {
 
 const mainItems = [
   { title: "דף הבית", url: "/", icon: Home },
-  { title: "הוצאות", url: "/expenses", icon: Receipt },
-  { title: "תקציב", url: "/budget", icon: PieChart },
   { title: "התחשבנות", url: "/balance", icon: Wallet },
-];
-
-const settingsItems = [
+  { title: "הוצאות", url: "/expenses", icon: Receipt },
   { title: "הגדרות", url: "/settings", icon: Settings },
 ];
 
@@ -63,31 +55,13 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>ניהול</SidebarGroupLabel>
+          <SidebarGroupLabel>תפריט</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {mainItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} end className={getNavCls}>
-                      <item.icon className="h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>אחר</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {settingsItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink to={item.url} className={getNavCls}>
                       <item.icon className="h-4 w-4" />
                       {!collapsed && <span>{item.title}</span>}
                     </NavLink>

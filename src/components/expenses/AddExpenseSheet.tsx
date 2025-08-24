@@ -37,12 +37,18 @@ const expenseSchema = z.object({
 type ExpenseFormData = z.infer<typeof expenseSchema>;
 
 interface AddExpenseSheetProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function AddExpenseSheet({ children }: AddExpenseSheetProps) {
-  const [open, setOpen] = useState(false);
+export function AddExpenseSheet({ children, open: externalOpen, onOpenChange: externalOnOpenChange }: AddExpenseSheetProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
   const addExpense = useStore(state => state.addExpense);
+
+  // Use external state if provided, otherwise use internal state
+  const open = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setOpen = externalOnOpenChange || setInternalOpen;
 
   const form = useForm<ExpenseFormData>({
     resolver: zodResolver(expenseSchema),
@@ -62,9 +68,11 @@ export function AddExpenseSheet({ children }: AddExpenseSheetProps) {
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        {children}
-      </SheetTrigger>
+      {children && (
+        <SheetTrigger asChild>
+          {children}
+        </SheetTrigger>
+      )}
       
       <SheetContent side="bottom" className="h-[90vh] overflow-y-auto">
         <SheetHeader className="text-right mb-6">

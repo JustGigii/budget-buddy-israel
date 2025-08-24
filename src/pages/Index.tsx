@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Wallet, TrendingUp, Users, Plus } from 'lucide-react';
-import { Header } from '@/components/layout/Header';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { BalanceCard } from '@/components/dashboard/BalanceCard';
 import { BudgetOverview } from '@/components/dashboard/BudgetOverview';
@@ -24,6 +23,16 @@ const Index = () => {
   return (
     <div className="min-h-screen gradient-warm">
       <div className="container mx-auto px-4 py-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-foreground">דשבורד</h1>
+          <Button 
+            onClick={() => setShowAddExpense(true)}
+            className="gradient-primary hover:shadow-elegant transition-bounce"
+          >
+            <Plus className="h-4 w-4 ml-1" />
+            הוספת הוצאה
+          </Button>
+        </div>
         {/* Balance Card - Main focus */}
         <BalanceCard />
         
@@ -70,16 +79,11 @@ const Index = () => {
             <BudgetOverview />
           </div>
         </div>
-
-        {/* Floating Add Button */}
-        <AddExpenseSheet>
-          <Button 
-            className="fixed bottom-6 right-6 h-14 w-14 rounded-full gradient-primary shadow-float hover:shadow-elegant transition-bounce z-50"
-            size="icon"
-          >
-            <Plus className="h-6 w-6" />
-          </Button>
-        </AddExpenseSheet>
+        
+        <AddExpenseSheet 
+          open={showAddExpense} 
+          onOpenChange={setShowAddExpense}
+        />
       </div>
     </div>
   );
