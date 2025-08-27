@@ -10,6 +10,10 @@ export function BudgetOverview() {
   const isOverBudget = budgetUsedPercentage > 100;
   const remainingDays = 180; // Mock - 6 months trip
   const dailyBudget = trip.remainingBudget / remainingDays;
+  
+  // Calculate individual budget usage percentages
+  const omriUsagePercentage = Math.min((users[0]?.totalPaid || 0) / trip.budget * 100, 100);
+  const noaUsagePercentage = Math.min((users[1]?.totalPaid || 0) / trip.budget * 100, 100);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -29,6 +33,17 @@ export function BudgetOverview() {
             <div className="text-2xl font-bold text-primary rtl-numbers">
               ₪{users[0]?.totalPaid?.toLocaleString() || '0'}
             </div>
+          </div>
+
+          {/* מד שימוש בתקציב */}
+          <div className="p-3 bg-muted/50 rounded-lg">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium">שימוש בתקציב</span>
+              <span className="text-sm font-bold text-primary rtl-numbers">
+                {omriUsagePercentage.toFixed(1)}%
+              </span>
+            </div>
+            <Progress value={omriUsagePercentage} className="h-2" />
           </div>
 
           {/* יתרה */}
@@ -71,6 +86,17 @@ export function BudgetOverview() {
             <div className="text-2xl font-bold text-secondary rtl-numbers">
               ₪{users[1]?.totalPaid?.toLocaleString() || '0'}
             </div>
+          </div>
+
+          {/* מד שימוש בתקציב */}
+          <div className="p-3 bg-muted/50 rounded-lg">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium">שימוש בתקציב</span>
+              <span className="text-sm font-bold text-secondary rtl-numbers">
+                {noaUsagePercentage.toFixed(1)}%
+              </span>
+            </div>
+            <Progress value={noaUsagePercentage} className="h-2" />
           </div>
 
           {/* יתרה */}
