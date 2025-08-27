@@ -1,10 +1,10 @@
-import { TrendingDown, TrendingUp, Target } from 'lucide-react';
+import { TrendingDown, TrendingUp, Target, User } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useStore } from '@/store/useStore';
 
 export function BudgetOverview() {
-  const { trip } = useStore();
+  const { trip, users } = useStore();
   
   const budgetUsedPercentage = (trip.totalExpenses / trip.budget) * 100;
   const isOverBudget = budgetUsedPercentage > 100;
@@ -12,68 +12,90 @@ export function BudgetOverview() {
   const dailyBudget = trip.remainingBudget / remainingDays;
 
   return (
-    <Card className="shadow-card">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Target className="h-5 w-5 text-primary" />
-          סטטוס תקציב
-        </CardTitle>
-      </CardHeader>
-      
-      <CardContent className="space-y-4">
-        {/* Budget Progress */}
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-muted-foreground">תקציב מנוצל</span>
-            <span className="text-sm font-medium rtl-numbers">
-              {budgetUsedPercentage.toFixed(1)}%
-            </span>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {/* עמרי */}
+      <Card className="shadow-card">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <User className="h-5 w-5 text-primary" />
+            סטטוס עמרי
+          </CardTitle>
+        </CardHeader>
+        
+        <CardContent className="space-y-4">
+          {/* סכום ששילם */}
+          <div className="p-3 bg-primary/10 rounded-lg border border-primary/20">
+            <div className="text-sm text-primary/80 mb-1">שילם עד כה</div>
+            <div className="text-2xl font-bold text-primary rtl-numbers">
+              ₪{users[0]?.totalPaid?.toLocaleString() || '0'}
+            </div>
           </div>
-          
-          <Progress 
-            value={Math.min(budgetUsedPercentage, 100)} 
-            className="h-2"
-          />
-          
-          <div className="flex justify-between text-xs text-muted-foreground mt-1">
-            <span className="rtl-numbers">₪{trip.totalExpenses.toLocaleString()}</span>
-            <span className="rtl-numbers">₪{trip.budget.toLocaleString()}</span>
-          </div>
-        </div>
 
-        {/* Remaining Budget */}
-        <div className="p-3 bg-muted/50 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {isOverBudget ? (
-                <TrendingDown className="h-4 w-4 text-destructive" />
-              ) : (
-                <TrendingUp className="h-4 w-4 text-success" />
-              )}
-              <span className="text-sm font-medium">
-                {isOverBudget ? 'חריגה מהתקציב' : 'נשאר בתקציב'}
+          {/* יתרה */}
+          <div className="p-3 bg-muted/50 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {users[0]?.netBalance > 0 ? (
+                  <TrendingUp className="h-4 w-4 text-success" />
+                ) : (
+                  <TrendingDown className="h-4 w-4 text-warning" />
+                )}
+                <span className="text-sm font-medium">
+                  {users[0]?.netBalance > 0 ? 'זוכה' : users[0]?.netBalance < 0 ? 'חייב' : 'מאוזן'}
+                </span>
+              </div>
+              
+              <span className={`font-bold rtl-numbers ${
+                users[0]?.netBalance > 0 ? 'text-success' : users[0]?.netBalance < 0 ? 'text-warning' : 'text-muted-foreground'
+              }`}>
+                ₪{Math.abs(users[0]?.netBalance || 0).toLocaleString()}
               </span>
             </div>
-            
-            <span className={`font-bold rtl-numbers ${
-              isOverBudget ? 'text-destructive' : 'text-success'
-            }`}>
-              ₪{Math.abs(trip.remainingBudget).toLocaleString()}
-            </span>
           </div>
-        </div>
+        </CardContent>
+      </Card>
 
-        {/* Daily Budget */}
-        {!isOverBudget && (
-          <div className="text-center p-3 border rounded-lg">
-            <div className="text-sm text-muted-foreground mb-1">תקציב יומי משוער</div>
-            <div className="text-lg font-semibold rtl-numbers">₪{Math.round(dailyBudget)}</div>
-            <div className="text-xs text-muted-foreground">
-              ל-{remainingDays} ימים נותרים
+      {/* נועה */}
+      <Card className="shadow-card">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <User className="h-5 w-5 text-secondary" />
+            סטטוס נועה
+          </CardTitle>
+        </CardHeader>
+        
+        <CardContent className="space-y-4">
+          {/* סכום ששילמה */}
+          <div className="p-3 bg-secondary/10 rounded-lg border border-secondary/20">
+            <div className="text-sm text-secondary/80 mb-1">שילמה עד כה</div>
+            <div className="text-2xl font-bold text-secondary rtl-numbers">
+              ₪{users[1]?.totalPaid?.toLocaleString() || '0'}
             </div>
           </div>
-        )}
-      </CardContent>
-    </Card>
+
+          {/* יתרה */}
+          <div className="p-3 bg-muted/50 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {users[1]?.netBalance > 0 ? (
+                  <TrendingUp className="h-4 w-4 text-success" />
+                ) : (
+                  <TrendingDown className="h-4 w-4 text-warning" />
+                )}
+                <span className="text-sm font-medium">
+                  {users[1]?.netBalance > 0 ? 'זוכה' : users[1]?.netBalance < 0 ? 'חייבת' : 'מאוזנת'}
+                </span>
+              </div>
+              
+              <span className={`font-bold rtl-numbers ${
+                users[1]?.netBalance > 0 ? 'text-success' : users[1]?.netBalance < 0 ? 'text-warning' : 'text-muted-foreground'
+              }`}>
+                ₪{Math.abs(users[1]?.netBalance || 0).toLocaleString()}
+              </span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
