@@ -78,7 +78,7 @@ export function ExpensesList() {
                       <Calendar className="h-3 w-3" />
                       <span>{format(expense.date, 'dd/MM/yyyy', { locale: he })}</span>
                       <span>•</span>
-                      <span>{expense.payer} שילם</span>
+                      <span>{expense.hebpayer} שילם</span>
                       <span>•</span>
                       <span>{expense.splitType === 'equal' ? 'חצי-חצי' : 'פרטי'}</span>
                     </div>

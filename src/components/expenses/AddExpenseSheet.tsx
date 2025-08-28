@@ -32,7 +32,7 @@ const expenseSchema = z.object({
   payer: z.enum(['Omri', 'Noa'], { required_error: 'יש לבחור מי שילם' }),
   splitType: z.enum(['equal', 'personal']).default('equal'),
   notes: z.string().optional(),
-});
+})
 
 type ExpenseFormData = z.infer<typeof expenseSchema>;
 
@@ -55,12 +55,14 @@ export function AddExpenseSheet({ children, open: externalOpen, onOpenChange: ex
     defaultValues: {
       date: new Date(),
       splitType: 'equal',
-      currencyOriginal: 'JPY',
+      currencyOriginal: 'ILS',
       payer: 'Omri'
+      
     },
   });
 
   const onSubmit = (data: ExpenseFormData) => {
+    
     addExpense(data as any); // Type assertion since we know the form validation ensures all required fields
     form.reset();
     setOpen(false);
@@ -75,9 +77,8 @@ export function AddExpenseSheet({ children, open: externalOpen, onOpenChange: ex
       )}
       
       <SheetContent side="bottom" className="h-[90vh] overflow-y-auto">
-        <SheetHeader className="text-right mb-6">
-          <SheetTitle className="flex items-center gap-2 justify-end">
-            <Plus className="h-5 w-5" />
+        <SheetHeader className="text-right mb-6 " >
+          <SheetTitle  className="flex justify-center items-center gap-2 text-lg">
             הוספת הוצאה חדשה
           </SheetTitle>
         </SheetHeader>
@@ -131,7 +132,7 @@ export function AddExpenseSheet({ children, open: externalOpen, onOpenChange: ex
               name="merchant"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>ספק / שם המקום</FormLabel>
+                  <FormLabel> מאפיה קנינו</FormLabel>
                   <FormControl>
                     <Input placeholder="לדוגמה: רמן איצ׳ירן" {...field} />
                   </FormControl>

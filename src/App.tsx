@@ -10,22 +10,33 @@ import Balance from "./pages/Balance";
 import Expenses from "./pages/Expenses";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import { useEffect } from "react";
+import axios from "axios";
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const App = () => 
+{
+  useEffect(() => {
+
+      const contry = ['JPY','KRW','CNY','HKD','TWD','THB','VND','PHP','SGD','MYR','IDR','EUR','USD'];
+      axios.get('https://latest.currency-api.pages.dev/v1/currencies/ils.json').then(res => {
+        contry.forEach(element => {
+          console.log(element);
+          console.log(res.data.ils[element.toLowerCase()]);
+        })
+      })
+   
+  }, []);
+
+  return(
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
         <SidebarProvider>
-          <div className="min-h-screen flex w-full">
-            <AppSidebar />
-            <main className="flex-1">
-              <header className="h-12 flex items-center border-b bg-card sticky top-0 z-40">
-                <SidebarTrigger className="ml-2" />
-              </header>
+
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/balance" element={<Balance />} />
@@ -34,12 +45,12 @@ const App = () => (
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </main>
-          </div>
+
+
         </SidebarProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
-
+}
 export default App;

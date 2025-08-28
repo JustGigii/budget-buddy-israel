@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { Expense, Trip, User, ExchangeRate } from '@/types';
+import axios from 'axios';
+
 
 interface AppState {
   trip: Trip;
@@ -14,20 +16,8 @@ interface AppState {
   calculateBalances: () => void;
 }
 
-// Mock exchange rates
-const mockRates: ExchangeRate[] = [
-  { currency: 'JPY', rate: 0.024, lastUpdated: new Date() },
-  { currency: 'KRW', rate: 0.0027, lastUpdated: new Date() },
-  { currency: 'CNY', rate: 0.50, lastUpdated: new Date() },
-  { currency: 'HKD', rate: 0.47, lastUpdated: new Date() },
-  { currency: 'TWD', rate: 0.11, lastUpdated: new Date() },
-  { currency: 'THB', rate: 0.10, lastUpdated: new Date() },
-  { currency: 'VND', rate: 0.00014, lastUpdated: new Date() },
-  { currency: 'PHP', rate: 0.063, lastUpdated: new Date() },
-  { currency: 'SGD', rate: 2.65, lastUpdated: new Date() },
-  { currency: 'MYR', rate: 0.81, lastUpdated: new Date() },
-  { currency: 'IDR', rate: 0.00024, lastUpdated: new Date() },
-];
+
+
 
 // Mock expenses
 const mockExpenses: Expense[] = [
@@ -39,82 +29,60 @@ const mockExpenses: Expense[] = [
     category: 'מסעדות',
     amountOriginal: 2400,
     currencyOriginal: 'JPY',
-    amountILS: 58,
+    amountILS: 5800,
     payer: 'Omri',
+    hebpayer: 'עמרי',
     splitType: 'equal',
     isShared: true,
     notes: 'ארוחת צהריים טעימה'
   },
-  {
-    id: '2',
-    createdAt: new Date('2024-12-02'),
-    date: new Date('2024-12-02'),
-    merchant: 'JR יאמנוטה ליין',
-    category: 'תחבורה',
-    amountOriginal: 160,
-    currencyOriginal: 'JPY',
-    amountILS: 4,
-    payer: 'Noa',
-    splitType: 'equal',
-    isShared: true,
-  },
-  {
-    id: '3',
-    createdAt: new Date('2024-12-03'),
-    date: new Date('2024-12-03'),
-    merchant: 'אוניקלו שיבויה',
-    category: 'קניות',
-    amountOriginal: 5500,
-    currencyOriginal: 'JPY',
-    amountILS: 132,
-    payer: 'Noa',
-    splitType: 'personal',
-    isShared: false,
-    notes: 'חולצות חורף'
-  },
-  {
-    id: '4',
-    createdAt: new Date('2024-12-04'),
-    date: new Date('2024-12-04'),
-    merchant: 'טוקיו סקאיטרי',
-    category: 'אטרקציות',
-    amountOriginal: 3100,
-    currencyOriginal: 'JPY',
-    amountILS: 74,
-    payer: 'Omri',
-    splitType: 'equal',
-    isShared: true,
-  }
+  //   {
+  //   id: '2',
+  //   createdAt: new Date('2024-12-01'),
+  //   date: new Date('2024-12-01'),
+  //   merchant: 'רמן איצ׳ירן - טוקיו',
+  //   category: 'מסעדות',
+  //   amountOriginal: 24000,
+  //   currencyOriginal: 'JPY',
+  //   amountILS: 588,
+  //   payer: 'noa',
+  //   splitType: 'equal',
+  //   isShared: true,
+  //   notes: 'ארוחת צהריים טעימה'
+  // },
+  
 ];
 
 export const useStore = create<AppState>((set, get) => ({
+  
   trip: {
     id: '1',
-    name: 'יפן 2025-2026',
+    name: 'טיול גודל',
     budget: 70000,
     totalExpenses: 268,
     remainingBudget: 69732
   },
   
   users: [
-    { id: '1', name: 'Omri', totalPaid: 132, totalOwed: 66, netBalance: 66 },
-    { id: '2', name: 'Noa', totalPaid: 136, totalOwed: 70, netBalance: 66 }
+    { id: '1', name: '',hebName: '',  totalPaid: 0, totalOwed: 0, netBalance: 0,color: 'primary' },
+    { id: '2', name: '',hebName: '',  totalPaid: 0, totalOwed: 0, netBalance: 0,color: 'accent' },
   ],
   
   expenses: mockExpenses,
-  exchangeRates: mockRates,
+  exchangeRates:exchangerate() ,
 
   addExpense: (expenseData) => {
     const state = get();
     const rate = state.exchangeRates.find(r => r.currency === expenseData.currencyOriginal)?.rate || 1;
-    const amountILS = expenseData.currencyOriginal === 'ILS' ? expenseData.amountOriginal : expenseData.amountOriginal * rate;
+    const amountILS = expenseData.currencyOriginal === 'ils' ? expenseData.amountOriginal : expenseData.amountOriginal * rate;
     
     const expense: Expense = {
       ...expenseData,
       id: Date.now().toString(),
       createdAt: new Date(),
       amountILS: Math.round(amountILS),
-      isShared: expenseData.splitType === 'equal'
+      isShared: expenseData.splitType === 'equal',
+      hebpayer: expenseData.payer === 'Omri' ? 'עמרי' : 'נועה'
     };
 
     set(state => ({
@@ -150,19 +118,21 @@ export const useStore = create<AppState>((set, get) => ({
     expenses.forEach(expense => {
       if (expense.payer === 'Omri') {
         omriStats.totalPaid += expense.amountILS;
+        if (expense.isShared)
+           noaStats.totalOwed += expense.amountILS;
       } else {
         noaStats.totalPaid += expense.amountILS;
+            if (expense.isShared)
+         omriStats.totalOwed += expense.amountILS;
+ 
       }
 
-      if (expense.isShared) {
-        totalSharedExpenses += expense.amountILS;
-      }
+
     });
 
     // Calculate what each person owes (50% of shared expenses)
-    const sharedPerPerson = totalSharedExpenses / 2;
-    omriStats.totalOwed = sharedPerPerson;
-    noaStats.totalOwed = sharedPerPerson;
+   
+
 
     const totalExpenses = omriStats.totalPaid + noaStats.totalPaid;
 
@@ -170,17 +140,21 @@ export const useStore = create<AppState>((set, get) => ({
       users: [
         { 
           id: '1', 
-          name: 'Omri', 
+          name: 'Omri',
+          hebName: 'עמרי', 
           totalPaid: omriStats.totalPaid, 
           totalOwed: omriStats.totalOwed,
-          netBalance: omriStats.totalPaid - omriStats.totalOwed
+          netBalance: noaStats.totalOwed- omriStats.totalOwed > 0 ? noaStats.totalOwed- omriStats.totalOwed : 0,
+          color : 'primary'
         },
         { 
           id: '2', 
-          name: 'Noa', 
+          name: 'Noa',
+          hebName: 'נועה', 
           totalPaid: noaStats.totalPaid, 
           totalOwed: noaStats.totalOwed,
-          netBalance: noaStats.totalPaid - noaStats.totalOwed
+          netBalance: noaStats.totalOwed- omriStats.totalOwed < 0 ? -(noaStats.totalOwed- omriStats.totalOwed) : 0,
+          color : 'accent'
         }
       ],
       trip: {
@@ -191,3 +165,17 @@ export const useStore = create<AppState>((set, get) => ({
     }));
   }
 }));
+
+function exchangerate(): ExchangeRate[] {
+   let rate = [];
+
+  const contry = ['JPY','KRW','CNY','HKD','TWD','THB','VND','PHP','SGD','MYR','IDR','EUR','USD','ILS'];
+      axios.get('https://latest.currency-api.pages.dev/v1/currencies/ils.json').then(res => {
+              contry.forEach(element => {
+                rate.push({currency:element,rate:1/res.data.ils[element.toLowerCase()]})
+        })
+      })
+
+   return rate;
+   }
+

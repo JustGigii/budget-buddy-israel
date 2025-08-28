@@ -8,17 +8,20 @@ export interface Expense {
   amountOriginal: number;
   currencyOriginal: string;
   amountILS: number;
-  payer: 'Omri' | 'Noa';
+  payer: string;
+  hebpayer: string;
   splitType: 'equal' | 'personal';
   isShared: boolean;
 }
 
 export interface User {
   id: string;
-  name: 'Omri' | 'Noa';
+  name: string;
+  hebName: string;
   totalPaid: number;
   totalOwed: number;
   netBalance: number;
+  color: string;
 }
 
 export interface Trip {
@@ -32,7 +35,7 @@ export interface Trip {
 export interface ExchangeRate {
   currency: string;
   rate: number;
-  lastUpdated: Date;
+
 }
 
 export const CURRENCIES = [
@@ -48,6 +51,8 @@ export const CURRENCIES = [
   { code: 'SGD', symbol: 'S$', name: 'סינגפורי דולר' },
   { code: 'MYR', symbol: 'RM', name: 'מלזי רינגיט' },
   { code: 'IDR', symbol: 'Rp', name: 'אינדונזי רופיה' },
+  { code: 'EUR', symbol: '€', name: 'אורו' },
+  { code: 'USD', symbol: '$', name: 'אמריקני דולר' },
 ] as const;
 
 export const CATEGORIES = [
