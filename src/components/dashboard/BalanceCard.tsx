@@ -76,7 +76,7 @@ export function BalanceCard() {
               </div>
               <div className="text-sm font-medium text-muted-foreground mb-1">{omri.hebName}</div>
               <div className="text-2xl font-bold text-primary rtl-numbers mb-1">
-                ₪{omri.netBalance.toLocaleString()}
+                ₪{omri.totalOwed.toLocaleString()}
               </div>
               <div className="text-xs text-muted-foreground mb-2">שילם בסך הכל</div>
               
@@ -108,7 +108,7 @@ export function BalanceCard() {
               </div>
               <div className="text-sm font-medium text-muted-foreground mb-1">{noa.hebName}</div>
               <div className="text-2xl font-bold text-accent rtl-numbers mb-1">
-                ₪{(noa.netBalance-omri.netBalance).toLocaleString()}
+                ₪{(noa.totalOwed).toLocaleString()}
               </div>
               <div className="text-xs text-muted-foreground mb-2">שילמה בסך הכל</div>
               

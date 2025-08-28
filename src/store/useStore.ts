@@ -119,11 +119,11 @@ export const useStore = create<AppState>((set, get) => ({
       if (expense.payer === 'Omri') {
         omriStats.totalPaid += expense.amountILS;
         if (expense.isShared)
-           noaStats.totalOwed += expense.amountILS;
+           omriStats.totalOwed += expense.amountILS;
       } else {
         noaStats.totalPaid += expense.amountILS;
             if (expense.isShared)
-         omriStats.totalOwed += expense.amountILS;
+         noaStats.totalOwed += expense.amountILS;
  
       }
 
@@ -144,7 +144,7 @@ export const useStore = create<AppState>((set, get) => ({
           hebName: 'עמרי', 
           totalPaid: omriStats.totalPaid, 
           totalOwed: omriStats.totalOwed,
-          netBalance: noaStats.totalOwed- omriStats.totalOwed > 0 ? noaStats.totalOwed- omriStats.totalOwed : 0,
+          netBalance: omriStats.totalOwed-noaStats.totalOwed  > 0 ? omriStats.totalOwed- noaStats.totalOwed  : 0,
           color : 'primary'
         },
         { 
@@ -153,7 +153,7 @@ export const useStore = create<AppState>((set, get) => ({
           hebName: 'נועה', 
           totalPaid: noaStats.totalPaid, 
           totalOwed: noaStats.totalOwed,
-          netBalance: noaStats.totalOwed- omriStats.totalOwed < 0 ? -(noaStats.totalOwed- omriStats.totalOwed) : 0,
+          netBalance: noaStats.totalOwed- omriStats.totalOwed > 0 ? (noaStats.totalOwed- omriStats.totalOwed) : 0,
           color : 'accent'
         }
       ],
