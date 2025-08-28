@@ -11,6 +11,7 @@ interface AppState {
   
   // Actions
   addExpense: (expense: Omit<Expense, 'id' | 'createdAt' | 'amountILS' | 'isShared'>) => void;
+  deleteExpense: (expenseId: string) => void;
   updateTrip: (trip: Partial<Trip>) => void;
   updateExchangeRate: (currency: string, rate: number) => void;
   calculateBalances: () => void;
@@ -89,6 +90,13 @@ export const useStore = create<AppState>((set, get) => ({
       expenses: [...state.expenses, expense]
     }));
 
+    get().calculateBalances();
+  },
+
+  deleteExpense: (expenseId) => {
+    set(state => ({
+      expenses: state.expenses.filter(expense => expense.id !== expenseId)
+    }));
     get().calculateBalances();
   },
 
