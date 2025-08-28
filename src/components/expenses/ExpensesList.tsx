@@ -52,19 +52,17 @@ export function ExpensesList() {
   return (
     <Card className="shadow-card">
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+        <CardTitle className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <span>הוצאות אחרונות</span>
-          <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={clearFilters}
-              className="text-xs"
-            >
-              <X className="h-3 w-3 ml-1" />
-              נקה סינונים
-            </Button>
-          </div>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={clearFilters}
+            className="text-xs self-start sm:self-auto"
+          >
+            <X className="h-3 w-3 ml-1" />
+            נקה סינונים
+          </Button>
         </CardTitle>
         
         <div className="space-y-3">
@@ -78,9 +76,9 @@ export function ExpensesList() {
             />
           </div>
           
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 flex-col sm:flex-row">
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-[140px]">
+              <SelectTrigger className="w-full sm:w-[140px]">
                 <SelectValue placeholder="קטגוריה" />
               </SelectTrigger>
               <SelectContent>
@@ -96,7 +94,7 @@ export function ExpensesList() {
             </Select>
             
             <Select value={selectedPayer} onValueChange={setSelectedPayer}>
-              <SelectTrigger className="w-[100px]">
+              <SelectTrigger className="w-full sm:w-[100px]">
                 <SelectValue placeholder="משלם" />
               </SelectTrigger>
               <SelectContent>
@@ -119,20 +117,20 @@ export function ExpensesList() {
             return (
               <div
                 key={expense.id}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-smooth group"
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-smooth group gap-3"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-start gap-3 flex-1">
                   <span className="text-2xl">{categoryInfo.emoji}</span>
                   
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-medium">{expense.merchant}</h4>
-                      <Badge variant="outline" className={categoryInfo.color}>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
+                      <h4 className="font-medium truncate">{expense.merchant}</h4>
+                      <Badge variant="outline" className={`${categoryInfo.color} text-xs flex-shrink-0`}>
                         {expense.category}
                       </Badge>
                     </div>
                     
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="flex flex-wrap items-center gap-1 text-xs sm:text-sm text-muted-foreground">
                       <Calendar className="h-3 w-3" />
                       <span>{format(expense.date, 'dd/MM/yyyy', { locale: he })}</span>
                       <span>•</span>
@@ -142,16 +140,16 @@ export function ExpensesList() {
                     </div>
                     
                     {expense.notes && (
-                      <p className="text-sm text-muted-foreground mt-1">{expense.notes}</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground mt-1 break-words">{expense.notes}</p>
                     )}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <div className="text-left">
+                <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
+                  <div className="text-right flex-shrink-0">
                     <div className="font-semibold rtl-numbers">₪{expense.amountILS}</div>
                     {expense.currencyOriginal !== 'ILS' && (
-                      <div className="text-sm text-muted-foreground rtl-numbers">
+                      <div className="text-xs sm:text-sm text-muted-foreground rtl-numbers">
                         {getCurrencySymbol(expense.currencyOriginal)}{expense.amountOriginal.toLocaleString()}
                       </div>
                     )}
@@ -161,7 +159,7 @@ export function ExpensesList() {
                     variant="ghost"
                     size="sm"
                     onClick={() => handleDeleteExpense(expense.id, expense.merchant)}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
+                    className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10 flex-shrink-0"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
