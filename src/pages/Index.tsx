@@ -7,6 +7,7 @@ import { ExpensesList } from '@/components/expenses/ExpensesList';
 import { AddExpenseSheet } from '@/components/expenses/AddExpenseSheet';
 import { Button } from '@/components/ui/button';
 import { useStore } from '@/store/useStore';
+import  LoginPage  from '@/pages/LoginPage'
 
 const Index = () => {
   const { trip, users, calculateBalances } = useStore();
@@ -17,11 +18,21 @@ const Index = () => {
   }, [calculateBalances]);
 
 
-
+  if(1 === 1) return ( 
+    <div className="min-h-screen gradient-warm">
+       <div className="w-full h-full mx-auto px-4 py-6 space-y-6">
+        <LoginPage />
+    </div>
+</div>
+)
 
   return (
+    
     <div className="min-h-screen gradient-warm">
+      
       <div className="container mx-auto px-4 py-6 space-y-6">
+        
+     
         {/* Balance Card - Main focus */}
         <BalanceCard />
         
