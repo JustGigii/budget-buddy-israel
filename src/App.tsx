@@ -17,17 +17,7 @@ const queryClient = new QueryClient();
 
 const App = () => 
 {
-  useEffect(() => {
-
-      const contry = ['JPY','KRW','CNY','HKD','TWD','THB','VND','PHP','SGD','MYR','IDR','EUR','USD'];
-      axios.get('https://latest.currency-api.pages.dev/v1/currencies/ils.json').then(res => {
-        contry.forEach(element => {
-          console.log(element);
-          console.log(res.data.ils[element.toLowerCase()]);
-        })
-      })
-   
-  }, []);
+ 
 
   return(
   <QueryClientProvider client={queryClient}>
@@ -35,7 +25,7 @@ const App = () =>
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <SidebarProvider>
+
 
               <Routes>
                 <Route path="/" element={<Index />} />
@@ -47,7 +37,7 @@ const App = () =>
               </Routes>
 
 
-        </SidebarProvider>
+
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
