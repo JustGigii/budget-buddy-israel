@@ -34,6 +34,25 @@ export function DailySpending({ expenses }: DailySpendingProps) {
       dayName: format(day, 'EEE', { locale: he }),
     };
   });
+  const totalweek = (date) => {
+  const now = new Date();
+
+  // למצוא את יום ראשון של השבוע הנוכחי
+  const dayOfWeek = now.getDay(); // 0 = ראשון, 6 = שבת
+  const sunday = new Date(now);
+  sunday.setDate(now.getDate() - dayOfWeek);
+
+  // למצוא את שבת של השבוע הנוכחי
+  const saturday = new Date(sunday);
+  saturday.setDate(sunday.getDate() + 6);
+
+  // לבדוק אם התאריך נמצא בטווח
+  return date >= sunday && date <= saturday;
+}
+const weekelypay = expenses.filter(expense => { 
+  const expenseDate = new Date(expense.date);
+  return totalweek(expenseDate);
+}).reduce((sum, expense) => sum + expense.amountILS, 0);
 
   // Get expenses by hour of day
   const hourlyData = Array.from({ length: 24 }, (_, hour) => {
@@ -84,103 +103,9 @@ export function DailySpending({ expenses }: DailySpendingProps) {
   return (
     <div className="space-y-6">
       {/* Daily Spending This Month */}
-      <Card className="shadow-card">
-        <CardHeader>
-          <CardTitle>הוצאות יומיות החודש</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={dailyData}>
-              <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-              <XAxis 
-                dataKey="date" 
-                tick={{ fontSize: 10 }}
-                interval="preserveStartEnd"
-              />
-              <YAxis 
-                tick={{ fontSize: 12 }}
-                tickFormatter={(value) => `₪${(value / 1000).toFixed(0)}K`}
-              />
-              <Tooltip content={<CustomTooltip />} />
-              <Area 
-                type="monotone" 
-                dataKey="total" 
-                stroke="hsl(var(--primary))" 
-                fill="hsl(var(--primary))" 
-                fillOpacity={0.2}
-                strokeWidth={2}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
+     
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Spending by Hour */}
-        <Card className="shadow-card">
-          <CardHeader>
-            <CardTitle>הוצאות לפי שעה ביום</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
-              <ScatterChart data={hourlyData.filter(h => h.total > 0)}>
-                <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                <XAxis 
-                  dataKey="hour" 
-                  tick={{ fontSize: 10 }}
-                  interval={3}
-                />
-                <YAxis 
-                  tick={{ fontSize: 12 }}
-                  tickFormatter={(value) => `₪${(value / 1000).toFixed(0)}K`}
-                />
-                <Tooltip 
-                  formatter={(value, name) => [
-                    name === 'total' ? `₪${value.toLocaleString()}` : value,
-                    name === 'total' ? 'סכום' : 'כמות'
-                  ]}
-                />
-                <Scatter 
-                  dataKey="total" 
-                  fill="hsl(var(--accent))"
-                  r={4}
-                />
-              </ScatterChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        {/* Spending by Day of Week */}
-        <Card className="shadow-card">
-          <CardHeader>
-            <CardTitle>הוצאות לפי יום בשבוע</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
-              <AreaChart data={weekdayData}>
-                <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                <XAxis 
-                  dataKey="day" 
-                  tick={{ fontSize: 12 }}
-                />
-                <YAxis 
-                  tick={{ fontSize: 12 }}
-                  tickFormatter={(value) => `₪${(value / 1000).toFixed(0)}K`}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Area 
-                  type="monotone" 
-                  dataKey="total" 
-                  stroke="hsl(var(--warning))" 
-                  fill="hsl(var(--warning))" 
-                  fillOpacity={0.2}
-                  strokeWidth={2}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
+   
 
       {/* Today's Summary */}
       <Card className="shadow-card">
@@ -192,20 +117,21 @@ export function DailySpending({ expenses }: DailySpendingProps) {
             {dailyData
               .filter(day => day.isToday || day.isYesterday)
               .map((day) => (
-                <div key={day.date} className={`p-4 rounded-lg ${
-                  day.isToday ? 'bg-primary/10 border border-primary/20' : 'bg-muted/30'
+                <div key={day.date} className={`p-4 rounded-lg  ${
+                  day.isToday ? 'bg-primary/10 border border-primary/20 '  : 'bg-muted border border-muted/0.1' 
                 }`}>
-                  <h4 className="font-medium mb-2">
+
+                  <h4 className="  font-medium mb-2">
                     {day.isToday ? 'היום' : 'אתמול'}
                   </h4>
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
-                      <span>סה״כ:</span>
                       <span className="font-medium rtl-numbers">₪{day.total.toLocaleString()}</span>
+                      <span>:סה״כ</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>הוצאות:</span>
                       <span className="font-medium rtl-numbers">{day.count}</span>
+                      <span>:הוצאות</span>
                     </div>
                   </div>
                 </div>
@@ -230,20 +156,22 @@ export function DailySpending({ expenses }: DailySpendingProps) {
             </div>
             
             <div className="p-4 bg-warning/10 rounded-lg border border-warning/20">
-              <h4 className="font-medium mb-2">יום הכי יקר</h4>
+              <h4 className="font-medium mb-2">השבוע</h4>
               {(() => {
-                const maxDay = dailyData.reduce((max, day) => day.total > max.total ? day : max);
+                const maxDay = expenses.reduce((index, expense) => totalweek(expense.date) ? index+ 1 : index,0);
                 return (
-                  <div className="space-y-1 text-sm">
+                  <div className="space-y-1 text-sm ">
+
                     <div className="flex justify-between">
-                      <span>תאריך:</span>
-                      <span className="font-medium">{maxDay.date}</span>
+                      <span className="font-medium rtl-numbers">₪{weekelypay.toLocaleString()}</span>
+                      <span>:סכום</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span>סכום:</span>
-                      <span className="font-medium rtl-numbers">₪{maxDay.total.toLocaleString()}</span>
+                                        <div className="flex justify-between ">
+                      <span className="font-medium">{maxDay}</span>
+                      <span >:הוצאות</span>
                     </div>
                   </div>
+                  
                 );
               })()}
             </div>

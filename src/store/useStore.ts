@@ -86,7 +86,8 @@ export const useStore = create<AppState>((set, get) => ({
           hebpayer: d.hebpayer,
           splitType: d.splitType,
           isShared: d.isShared,
-          notes: d.notes || ''
+          notes: d.notes || '',
+          country: d.country
         });
       });
       set({ expenses });
@@ -129,6 +130,7 @@ export const useStore = create<AppState>((set, get) => ({
       amountILS: Math.round(amountILS),
       isShared: expenseData.splitType === 'equal',
       hebpayer: expenseData.payer === 'Omri' ? 'עמרי' : 'נועה',
+      country: expenseData.country
     });
   },
 

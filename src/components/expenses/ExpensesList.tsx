@@ -6,8 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useStore } from '@/store/useStore';
-import { CATEGORIES, CURRENCIES } from '@/types';
-import { format } from 'date-fns';
+import { CATEGORIES, CURRENCIES,COUNTRYS } from '@/types';
+import { format, set } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 
@@ -17,6 +17,7 @@ export function ExpensesList() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedPayer, setSelectedPayer] = useState<string>('');
+  const [splitType, setsplitType] = useState<string>('');
   const { toast } = useToast();
 
   const filteredExpenses = expenses.filter(expense => {
@@ -25,7 +26,8 @@ export function ExpensesList() {
       expense.notes?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !selectedCategory || expense.category === selectedCategory;
     const matchesPayer = !selectedPayer || expense.payer === selectedPayer;
-    return matchesSearch && matchesCategory && matchesPayer;
+    const matchsplitType = !splitType || expense.splitType === splitType;
+    return matchesSearch && matchesCategory && matchesPayer&&matchsplitType;
   });
 
   const getCategoryInfo = (category: string) =>
@@ -64,6 +66,7 @@ export function ExpensesList() {
     setSearchTerm('');
     setSelectedCategory('');
     setSelectedPayer('');
+    setsplitType('');
   };
 
   return (
@@ -104,7 +107,7 @@ export function ExpensesList() {
                 ))}
               </SelectContent>
             </Select>
-
+            <div className="flex gap-2  sm:flex-row">
             <Select value={selectedPayer} onValueChange={setSelectedPayer}>
               <SelectTrigger className="w-full sm:w-[100px]">
                 <SelectValue placeholder="משלם" />
@@ -114,10 +117,21 @@ export function ExpensesList() {
                 <SelectItem value="Noa">נועה</SelectItem>
               </SelectContent>
             </Select>
+              <Select value={splitType} onValueChange={setsplitType}>
+              <SelectTrigger className="w-full sm:w-[100px]">
+                <SelectValue placeholder="סוג חלוקה" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="equal">חצי חצי</SelectItem>
+                <SelectItem value="personal">פרטי</SelectItem>
+              </SelectContent>
+            </Select>
+            </div>
           </div>
         </div>
+        
       </CardHeader>
-
+                
       <CardContent className="space-y-3">
         {filteredExpenses.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">לא נמצאו הוצאות</div>
@@ -130,11 +144,15 @@ export function ExpensesList() {
                 className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-smooth group gap-3"
               >
                 <div className="flex items-start gap-3 flex-1">
+                  
                   <span className="text-2xl">{categoryInfo.emoji}</span>
 
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
+                     <div className="flex items-center gap-2">
                       <h4 className="font-medium truncate">{expense.merchant}</h4>
+                     
+                      </div>
                       <Badge variant="outline" className={`${categoryInfo.color} text-xs flex-shrink-0`}>
                         {expense.category}
                       </Badge>
@@ -147,12 +165,14 @@ export function ExpensesList() {
                       <span>{expense.hebpayer} שילם</span>
                       <span>•</span>
                       <span>{expense.splitType === 'equal' ? 'חצי-חצי' : 'פרטי'}</span>
+                      
                     </div>
 
                     {expense.notes && (
                       <p className="text-xs sm:text-sm text-muted-foreground mt-1 break-words">{expense.notes}</p>
                     )}
                   </div>
+                   <h4>{COUNTRYS.find((country) => country.key === expense.country)?.emoji}</h4>
                 </div>
 
                 <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">

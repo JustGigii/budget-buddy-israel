@@ -18,13 +18,15 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
 import { useStore } from '@/store/useStore';
-import { CURRENCIES, CATEGORIES } from '@/types';
+import { CURRENCIES, CATEGORIES,COUNTRYS } from '@/types';
 import { cn } from '@/lib/utils';
 
 const expenseSchema = z.object({
   date: z.date({ required_error: 'יש לבחור תאריך' }),
   merchant: z.string().min(1, 'יש להזין שם ספק'),
+
   category: z.enum(['מסעדות', 'אטרקציות', 'תחבורה', 'לינה', 'קניות', 'אחר'], {
+   
     required_error: 'יש לבחור קטגוריה'
   }),
    amountOriginal: z.preprocess((v) => {
@@ -35,6 +37,7 @@ const expenseSchema = z.object({
     return v;
   }, z.number({ required_error: 'יש להזין סכום' }).positive('הסכום חייב להיות חיובי')),
   currencyOriginal: z.string().min(1, 'יש לבחור מטבע'),
+  country: z.string().min(1, 'יש לבחור מדינה'),
   payer: z.enum(['Omri', 'Noa'], { required_error: 'יש לבחור מי שילם' }),
   splitType: z.enum(['equal', 'personal']).default('equal'),
   notes: z.string().optional(),
@@ -64,7 +67,8 @@ export function AddExpenseSheet({ children, open: externalOpen, onOpenChange: ex
       currencyOriginal: 'ILS',
       payer: 'Omri',
       notes: "",
-      merchant: ""
+      merchant: "",
+      country: "",
       
     },
   });
@@ -95,7 +99,7 @@ export function AddExpenseSheet({ children, open: externalOpen, onOpenChange: ex
             הוספת הוצאה חדשה
           </SheetTitle>
         </SheetHeader>
-
+      
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {/* Date */}
@@ -153,9 +157,38 @@ export function AddExpenseSheet({ children, open: externalOpen, onOpenChange: ex
                 </FormItem>
               )}
             />
+          <div className="grid grid-cols-2 gap-2">
+            {/* country */}
+            <FormField
+              control={form.control}
+              name="country"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>מדינה</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="בחר מדינה" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {COUNTRYS.map((category) => (
+                        <SelectItem key={category.key} value={category.key}>
+                          <span className="flex items-center gap-2">
+                            <span>{category.emoji}</span>
+                            <span>{category.key}</span>
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Category */}
-            <FormField
+              <FormField
               control={form.control}
               name="category"
               render={({ field }) => (
@@ -182,9 +215,10 @@ export function AddExpenseSheet({ children, open: externalOpen, onOpenChange: ex
                 </FormItem>
               )}
             />
-
+        
+              
             {/* Amount and Currency */}
-            <div className="grid grid-cols-2 gap-4">
+
               <FormField
                 control={form.control}
                 name="amountOriginal"

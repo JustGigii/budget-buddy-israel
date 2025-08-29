@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TrendingUp, DollarSign, PieChart, BarChart3, Calendar, Target } from 'lucide-react';
+import { TrendingUp, DollarSign, PieChart, BarChart3, Calendar, Target, SnailIcon, ReceiptText, CreditCard } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -8,19 +8,24 @@ import { ExpensesByCategory } from '@/components/analytics/ExpensesByCategory';
 import { MonthlyTrends } from '@/components/analytics/MonthlyTrends';
 import { UserComparison } from '@/components/analytics/UserComparison';
 import { DailySpending } from '@/components/analytics/DailySpending';
-
+import {  COUNTRYS } from '@/types';
 const Analytics = () => {
   const { users, expenses, trip } = useStore();
   const [selectedUser, setSelectedUser] = useState<string>('all');
-  
+  const [selectedcountry, setSelectedcountry] = useState<string>('all');
   const filteredExpenses = selectedUser === 'all' 
     ? expenses 
     : expenses.filter(expense => expense.payer === selectedUser);
-
-  const totalExpenses = filteredExpenses.reduce((sum, expense) => sum + expense.amountILS, 0);
-  const avgDailySpending = totalExpenses / Math.max(1, new Date().getDate());
+  const filteredExpensesByContrey = selectedcountry === 'all' 
+    ? expenses 
+    : expenses.filter(expense => expense.country === selectedcountry);
+  const totalExpenses = filteredExpensesByContrey.reduce((sum, expense) => sum + expense.amountILS, 0);
+  const todayExpenses = filteredExpensesByContrey.filter(expense => (expense.date.getFullYear() === new Date().getFullYear() && 
+                                                          expense.date.getMonth() === new Date().getMonth() &&
+                                                          expense.date.getDate() === new Date().getDate()))
+                                                         .reduce((sum, expense) => sum + expense.amountILS, 0);
   
-  const categoryStats = filteredExpenses.reduce((acc, expense) => {
+  const categoryStats = filteredExpensesByContrey.reduce((acc, expense) => {
     acc[expense.category] = (acc[expense.category] || 0) + expense.amountILS;
     return acc;
   }, {} as Record<string, number>);
@@ -28,7 +33,7 @@ const Analytics = () => {
   const topCategory = Object.entries(categoryStats).sort(([,a], [,b]) => b - a)[0];
 
   return (
-    <div className="min-h-screen gradient-warm">
+    
       <div className="container mx-auto px-4 py-6 space-y-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -36,9 +41,9 @@ const Analytics = () => {
             <h1 className="text-3xl font-bold text-foreground">ניתוח הוצאות</h1>
             <p className="text-muted-foreground">תובנות מפורטות על ההוצאות שלכם</p>
           </div>
-          
+          <div className=" flex flex-row  gap-3  justify-between w-full">
           <Select value={selectedUser} onValueChange={setSelectedUser}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="בחר משתמש" />
             </SelectTrigger>
             <SelectContent>
@@ -50,14 +55,28 @@ const Analytics = () => {
               ))}
             </SelectContent>
           </Select>
+           <Select value={selectedcountry} onValueChange={setSelectedcountry}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="בחר מדינה" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">כל המדניות</SelectItem>
+              {COUNTRYS.map((counrty,index) => (
+                <SelectItem key={index } value={counrty.key}>
+                  {counrty.key}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          </div>
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-1 gap-4">
           <Card className="shadow-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">סה״כ הוצאות</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
+              <CreditCard className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-primary rtl-numbers">
@@ -71,15 +90,15 @@ const Analytics = () => {
 
           <Card className="shadow-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">ממוצע יומי</CardTitle>
+              <CardTitle className="text-sm font-medium">שלום היום </CardTitle>
               <Calendar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-accent rtl-numbers">
-                ₪{Math.round(avgDailySpending).toLocaleString()}
+                ₪{Math.round(todayExpenses).toLocaleString()}
               </div>
               <p className="text-xs text-muted-foreground">
-                בממוצע ליום
+               שולם היום
               </p>
             </CardContent>
           </Card>
@@ -141,7 +160,7 @@ const Analytics = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+   
   );
 };
 

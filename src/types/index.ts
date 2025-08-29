@@ -12,6 +12,7 @@ export interface Expense {
   hebpayer: string;
   splitType: 'equal' | 'personal';
   isShared: boolean;
+  country : string
 }
 
 export interface User {
@@ -50,7 +51,6 @@ export const CURRENCIES = [
   { code: 'PHP', symbol: '₱', name: 'פיליפיני פסו' },
   { code: 'SGD', symbol: 'S$', name: 'סינגפורי דולר' },
   { code: 'MYR', symbol: 'RM', name: 'מלזי רינגיט' },
-  { code: 'IDR', symbol: 'Rp', name: 'אינדונזי רופיה' },
   { code: 'EUR', symbol: '€', name: 'אורו' },
   { code: 'USD', symbol: '$', name: 'אמריקני דולר' },
 ] as const;
@@ -63,3 +63,18 @@ export const CATEGORIES = [
   { key: 'קניות', emoji: '🛍️', color: 'bg-green-100 text-green-800' },
   { key: 'אחר', emoji: '📋', color: 'bg-gray-100 text-gray-800' },
 ] as const;
+
+export const COUNTRYS = [
+  { key: 'ישראל', emoji: '🇮🇱', },
+ { key: 'יפן', emoji: '🇯🇵', },
+ { key: 'קוריאה', emoji: '🇰🇷', },
+ { key: 'סינה', emoji: '🇨🇳', },
+ { key: 'טייוואן', emoji: '🇹🇼', },
+ { key: 'תאילנד', emoji: '🇹🇭', },
+ { key: 'ויטנאם', emoji: '🇻🇳', },
+ { key: 'פיליפינה', emoji: '🇵🇭', },
+ { key: 'סינגפור', emoji: '🇸🇬', },
+ { key: 'קמבודיה', emoji: '🇲🇨', },
+ {key: 'לאוס', emoji: '🇧🇪', },
+
+]
