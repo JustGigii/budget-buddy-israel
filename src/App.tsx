@@ -4,20 +4,24 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AppSidebar } from "@/components/layout/AppSidebar";
 import Index from "./pages/Index";
 import Balance from "./pages/Balance";
 import Expenses from "./pages/Expenses";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
-import { useEffect } from "react";
-import axios from "axios";
+import { useEffect } from 'react';
+import { useStore } from '@/store/useStore';
 
 const queryClient = new QueryClient();
-
+const tripId = 'big-trip-2025-2026'; // או מזהה דינמי
 const App = () => 
 {
- 
+   const init = useStore(s => s.init);
+
+  useEffect(() => {
+    const unsub = useStore.getState().init(tripId);
+    return () => unsub();
+  }, [init]);
 
   return(
   <QueryClientProvider client={queryClient}>

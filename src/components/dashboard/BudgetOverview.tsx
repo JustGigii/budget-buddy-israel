@@ -19,7 +19,7 @@ export function BudgetOverview() {
 
         <CardContent className="space-y-4">
            {users.map((user,index) => ( 
-            <>
+            <div key={user.id || index}>
           {/* סכום ששילם */}
                   <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -67,7 +67,7 @@ export function BudgetOverview() {
               </span>
             </div>
           </div>
-          </>
+          </div>
             ))}
         </CardContent>
       </Card>

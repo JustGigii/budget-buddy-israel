@@ -8,23 +8,30 @@ import { AddExpenseSheet } from '@/components/expenses/AddExpenseSheet';
 import { Button } from '@/components/ui/button';
 import { useStore } from '@/store/useStore';
 import  LoginPage  from '@/pages/LoginPage'
-
+// import { useAuth } from '@/hooks/useAuth';
 const Index = () => {
   const { trip, users, calculateBalances } = useStore();
+    // const { user, loading } = useAuth();
   const [showAddExpense, setShowAddExpense] = useState(false);
 
   useEffect(() => {
     calculateBalances();
   }, [calculateBalances]);
+// if(loading)
+//       return (
+//       <div className="min-h-screen flex items-center justify-center">
+//         <div className="animate-pulse text-muted-foreground">טוען…</div>
+//       </div>
+//     );
+  
 
-
-  if(1 === 1) return ( 
-    <div className="min-h-screen gradient-warm">
-       <div className="w-full h-full mx-auto px-4 py-6 space-y-6">
-        <LoginPage />
-    </div>
-</div>
-)
+//   if(!user) return ( 
+//     <div className="min-h-screen gradient-warm">
+//        <div className="w-full h-full mx-auto px-4 py-6 space-y-6">
+//         <LoginPage />
+//     </div>
+// </div>
+// )
 
   return (
     

@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { CalendarIcon, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
-
+import { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -27,7 +27,13 @@ const expenseSchema = z.object({
   category: z.enum(['מסעדות', 'אטרקציות', 'תחבורה', 'לינה', 'קניות', 'אחר'], {
     required_error: 'יש לבחור קטגוריה'
   }),
-  amountOriginal: z.number().positive('הסכום חייב להיות חיובי'),
+   amountOriginal: z.preprocess((v) => {
+    if (typeof v === 'string') {
+      const norm = v.replace(',', '.').trim();
+      return norm === '' ? undefined : Number(norm);
+    }
+    return v;
+  }, z.number({ required_error: 'יש להזין סכום' }).positive('הסכום חייב להיות חיובי')),
   currencyOriginal: z.string().min(1, 'יש לבחור מטבע'),
   payer: z.enum(['Omri', 'Noa'], { required_error: 'יש לבחור מי שילם' }),
   splitType: z.enum(['equal', 'personal']).default('equal'),
@@ -45,7 +51,7 @@ interface AddExpenseSheetProps {
 export function AddExpenseSheet({ children, open: externalOpen, onOpenChange: externalOnOpenChange }: AddExpenseSheetProps) {
   const [internalOpen, setInternalOpen] = useState(false);
   const addExpense = useStore(state => state.addExpense);
-
+  const trip = useStore(s => s.trip)
   // Use external state if provided, otherwise use internal state
   const open = externalOpen !== undefined ? externalOpen : internalOpen;
   const setOpen = externalOnOpenChange || setInternalOpen;
@@ -56,14 +62,21 @@ export function AddExpenseSheet({ children, open: externalOpen, onOpenChange: ex
       date: new Date(),
       splitType: 'equal',
       currencyOriginal: 'ILS',
-      payer: 'Omri'
+      payer: 'Omri',
+      notes: "",
+      merchant: ""
       
     },
   });
-
+      const formRef = useRef<HTMLFormElement>(null);
   const onSubmit = (data: ExpenseFormData) => {
-    
-    addExpense(data as any); // Type assertion since we know the form validation ensures all required fields
+  
+    if (!trip.id) {
+      console.error('Missing trip.id — ודא שקראת init(tripId) באתחול האפליקציה');
+      return;
+    }
+ 
+    addExpense(trip.id, data as any);
     form.reset();
     setOpen(false);
   };
@@ -76,15 +89,15 @@ export function AddExpenseSheet({ children, open: externalOpen, onOpenChange: ex
         </SheetTrigger>
       )}
       
-      <SheetContent side="bottom" className="h-[90vh] overflow-y-auto">
-        <SheetHeader className="text-right mb-6 " >
+      <SheetContent side="bottom"   className="h-[85svh] max-h-[90dvh] overflow-y-hidden pt-3 pb-[calc(env(safe-area-inset-bottom)+16px)]" >
+        <SheetHeader className="text-right mb-3 " >
           <SheetTitle  className="flex justify-center items-center gap-2 text-lg">
             הוספת הוצאה חדשה
           </SheetTitle>
         </SheetHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {/* Date */}
             <FormField
               control={form.control}
@@ -181,10 +194,10 @@ export function AddExpenseSheet({ children, open: externalOpen, onOpenChange: ex
                     <FormControl>
                       <Input
                         type="number"
-                        step="0.01"
+                        step="0.02"
                         placeholder="0"
                         {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                        onChange={(e) => field.onChange(parseFloat(e.target.value) )}
                       />
                     </FormControl>
                     <FormMessage />
@@ -236,7 +249,7 @@ export function AddExpenseSheet({ children, open: externalOpen, onOpenChange: ex
                     >
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="Omri" id="omri" />
-                        <Label htmlFor="omri">עומרי</Label>
+                        <Label htmlFor="omri">עמרי</Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="Noa" id="noa" />
@@ -287,7 +300,7 @@ export function AddExpenseSheet({ children, open: externalOpen, onOpenChange: ex
                   <FormControl>
                     <Textarea 
                       placeholder="הערות נוספות..." 
-                      className="min-h-[60px] resize-none" 
+                      className="min-h-[30px] resize-none" 
                       {...field} 
                     />
                   </FormControl>
@@ -296,15 +309,15 @@ export function AddExpenseSheet({ children, open: externalOpen, onOpenChange: ex
               )}
             />
 
-            <div className="flex gap-3 pt-4">
-              <Button type="submit" className="flex-1 gradient-primary">
+            <div className="flex flex-col items-center  gap-2 pt-2 !mt-1">
+              <Button  type="submit" onClick={() => formRef.current?.requestSubmit()} className="flex-1 w-full gradient-primary p-3" >
                 הוסף הוצאה
               </Button>
               <Button 
                 type="button" 
                 variant="outline" 
                 onClick={() => setOpen(false)}
-                className="flex-1"
+                className="flex-1 w-full"
               >
                 ביטול
               </Button>
