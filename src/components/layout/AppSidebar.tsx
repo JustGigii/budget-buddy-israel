@@ -2,6 +2,7 @@ import {
   Home, 
   Receipt, 
   Wallet,
+  BarChart3,
   Settings
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
@@ -23,6 +24,7 @@ const mainItems = [
   { title: "דף הבית", url: "/", icon: Home },
   { title: "התחשבנות", url: "/balance", icon: Wallet },
   { title: "הוצאות", url: "/expenses", icon: Receipt },
+  { title: "גרפים וניתוח", url: "/analytics", icon: BarChart3 },
   { title: "הגדרות", url: "/settings", icon: Settings },
 ];
 

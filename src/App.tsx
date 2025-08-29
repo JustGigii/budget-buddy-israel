@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Balance from "./pages/Balance";
 import Expenses from "./pages/Expenses";
+import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import { useEffect } from 'react';
@@ -35,6 +36,7 @@ const App = () =>
                 <Route path="/" element={<Index />} />
                 <Route path="/balance" element={<Balance />} />
                 <Route path="/expenses" element={<Expenses />} />
+                <Route path="/analytics" element={<Analytics />} />
                 <Route path="/settings" element={<Settings />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
