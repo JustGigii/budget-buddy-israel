@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Search, Filter, Calendar, Trash2, X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,12 +13,14 @@ import { useToast } from '@/hooks/use-toast';
 
 export function ExpensesList() {
   // ⬇️ הוספנו trip כדי שנוכל להעביר trip.id למחיקה
-  const { trip, expenses, deleteExpense } = useStore();
+  const { trip, expenses,users, deleteExpense } = useStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedPayer, setSelectedPayer] = useState<string>('');
   const [splitType, setsplitType] = useState<string>('');
   const { toast } = useToast();
+  const [user1,user2] = users;
+
 
   const filteredExpenses = expenses.filter(expense => {
     const matchesSearch =
@@ -52,6 +54,7 @@ export function ExpensesList() {
         console.error('Missing expenseId');
         return;
       }
+
 
       await deleteExpense(trip.id, expenseId);
       toast({
@@ -113,8 +116,8 @@ export function ExpensesList() {
                 <SelectValue placeholder="משלם" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Omri">עמרי</SelectItem>
-                <SelectItem value="Noa">נועה</SelectItem>
+                <SelectItem value={user1.name}>{user1.hebName}</SelectItem>
+                <SelectItem value={user2.name}>{user2.hebName}</SelectItem>
               </SelectContent>
             </Select>
               <Select value={splitType} onValueChange={setsplitType}>
@@ -132,7 +135,7 @@ export function ExpensesList() {
         
       </CardHeader>
                 
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-3 h-[500px] overflow-y-auto ">
         {filteredExpenses.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">לא נמצאו הוצאות</div>
         ) : (
@@ -162,7 +165,7 @@ export function ExpensesList() {
                       <Calendar className="h-3 w-3" />
                       <span>{format(expense.date, 'dd/MM/yyyy', { locale: he })}</span>
                       <span>•</span>
-                      <span>{expense.hebpayer} שילם</span>
+                      <span>{expense.hebpayer}</span>
                       <span>•</span>
                       <span>{expense.splitType === 'equal' ? 'חצי-חצי' : 'פרטי'}</span>
                       

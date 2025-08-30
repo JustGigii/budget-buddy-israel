@@ -5,8 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useStore } from '@/store/useStore';
 import { ExpensesByCategory } from '@/components/analytics/ExpensesByCategory';
-import { MonthlyTrends } from '@/components/analytics/MonthlyTrends';
-import { UserComparison } from '@/components/analytics/UserComparison';
+
 import { DailySpending } from '@/components/analytics/DailySpending';
 import {  COUNTRYS } from '@/types';
 const Analytics = () => {
@@ -17,9 +16,9 @@ const Analytics = () => {
     ? expenses 
     : expenses.filter(expense => expense.payer === selectedUser);
   const filteredExpensesByContrey = selectedcountry === 'all' 
-    ? expenses 
-    : expenses.filter(expense => expense.country === selectedcountry);
-  const totalExpenses = filteredExpensesByContrey.reduce((sum, expense) => sum + expense.amountILS, 0);
+    ? filteredExpenses 
+    : filteredExpenses.filter(expense => expense.country === selectedcountry);
+  const totalExpenses = selectedUser === 'all' ? expenses.reduce((sum, expense) => sum + expense.amountILS, 0) : filteredExpensesByContrey.filter(expense => expense.payer === selectedUser).reduce((sum, expense) => sum + expense.amountILS, 0);
   const todayExpenses = filteredExpensesByContrey.filter(expense => (expense.date.getFullYear() === new Date().getFullYear() && 
                                                           expense.date.getMonth() === new Date().getMonth() &&
                                                           expense.date.getDate() === new Date().getDate()))
@@ -136,10 +135,10 @@ const Analytics = () => {
 
         {/* Charts Tabs */}
         <Tabs defaultValue="categories" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="categories">קטגוריות</TabsTrigger>
-            <TabsTrigger value="trends">מגמות</TabsTrigger>
-            <TabsTrigger value="comparison">השוואה</TabsTrigger>
+
+      
             <TabsTrigger value="daily">יומי</TabsTrigger>
           </TabsList>
           
@@ -147,14 +146,7 @@ const Analytics = () => {
             <ExpensesByCategory expenses={filteredExpenses} />
           </TabsContent>
           
-          <TabsContent value="trends" className="space-y-4">
-            <MonthlyTrends expenses={filteredExpenses} />
-          </TabsContent>
-          
-          <TabsContent value="comparison" className="space-y-4">
-            <UserComparison users={users} expenses={expenses} />
-          </TabsContent>
-          
+
           <TabsContent value="daily" className="space-y-4">
             <DailySpending expenses={filteredExpenses} />
           </TabsContent>

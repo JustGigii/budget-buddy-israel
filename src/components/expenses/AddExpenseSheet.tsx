@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -16,7 +16,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-
+import { useAuth } from '@/hooks/useAuth';
 import { useStore } from '@/store/useStore';
 import { CURRENCIES, CATEGORIES,COUNTRYS } from '@/types';
 import { cn } from '@/lib/utils';
@@ -54,10 +54,13 @@ interface AddExpenseSheetProps {
 export function AddExpenseSheet({ children, open: externalOpen, onOpenChange: externalOnOpenChange }: AddExpenseSheetProps) {
   const [internalOpen, setInternalOpen] = useState(false);
   const addExpense = useStore(state => state.addExpense);
-  const trip = useStore(s => s.trip)
+  const {trip,users} = useStore()
   // Use external state if provided, otherwise use internal state
   const open = externalOpen !== undefined ? externalOpen : internalOpen;
   const setOpen = externalOnOpenChange || setInternalOpen;
+  const { user } = useAuth();
+  const email = user?.email || '';
+
 
   const form = useForm<ExpenseFormData>({
     resolver: zodResolver(expenseSchema),
@@ -65,14 +68,22 @@ export function AddExpenseSheet({ children, open: externalOpen, onOpenChange: ex
       date: new Date(),
       splitType: 'equal',
       currencyOriginal: 'ILS',
-      payer: 'Omri',
+      payer: email==='gigiomri@gmail.com'?'Omri':'Noa',
       notes: "",
       merchant: "",
       country: "",
       
     },
   });
-      const formRef = useRef<HTMLFormElement>(null);
+    useEffect(() => {
+    if (!email) return;
+    form.reset({
+      ...form.getValues(),
+      payer: email === 'gigiomri@gmail.com' ? 'Omri' : 'Noa',
+    });
+  }, [email]);
+
+   const formRef = useRef<HTMLFormElement>(null);
   const onSubmit = (data: ExpenseFormData) => {
   
     if (!trip.id) {
@@ -282,12 +293,12 @@ export function AddExpenseSheet({ children, open: externalOpen, onOpenChange: ex
                       className="flex gap-6"
                     >
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="Omri" id="omri" />
-                        <Label htmlFor="omri">עמרי</Label>
+                        <RadioGroupItem value={users[0].name} id={users[0].name} />
+                        <Label htmlFor={users[0].name}>{users[0].hebName}</Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="Noa" id="noa" />
-                        <Label htmlFor="noa">נועה</Label>
+                        <RadioGroupItem value={users[1].name} id={users[1].name} />
+                        <Label htmlFor={users[1].name}>{users[1].hebName}</Label>
                       </div>
                     </RadioGroup>
                   </FormControl>

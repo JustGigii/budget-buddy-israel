@@ -23,6 +23,8 @@ export interface User {
   totalOwed: number;
   netBalance: number;
   color: string;
+  picture: string;
+  email: string;
 }
 
 export interface Trip {

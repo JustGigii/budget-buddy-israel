@@ -30,6 +30,7 @@ export const useStore = create<AppState>((set, get) => ({
 
   // 1) התחברות ל־onSnapshot (טריפ, יוזרים, הוצאות, שערים)
   init: (tripId: string) => {
+
     const tripRef = doc(db, 'trips', tripId);
     const usersRef = collection(db, 'trips', tripId, 'users');
     const expensesRef = collection(db, 'trips', tripId, 'expenses');
@@ -51,48 +52,54 @@ export const useStore = create<AppState>((set, get) => ({
     });
 
     const unsubUsers = onSnapshot(usersRef, (snap) => {
-      const users: User[] = [];
-      snap.forEach((doc) => {
-        const d = doc.data() as any;
-        users.push({
-          id: doc.id,
-          name: d.name || '',
-          hebName: d.hebName || '',
-          totalPaid: d.totalPaid || 0,      // אפשר להשאיר 0 ולחשב בצד לקוח
-          totalOwed: d.totalOwed || 0,      // כנ"ל
-          netBalance: d.netBalance || 0,    // כנ"ל
-          color: d.color || 'primary'
-        });
-      });
-      set({ users });
-      // אפשר לקרוא calculateBalances כאן אם רוצים תמיד עדכני
-      get().calculateBalances();
-    });
 
-    const unsubExpenses = onSnapshot(query(expensesRef, orderBy('createdAt', 'desc')), (snap) => {
-      const expenses: Expense[] = [];
-      snap.forEach((doc) => {
-        const d = doc.data() as any;
-        expenses.push({
-          id: doc.id,
-          createdAt: d.createdAt?.toDate?.() || new Date(),
-          date: d.date?.toDate?.() || new Date(),
-          merchant: d.merchant,
-          category: d.category,
-          amountOriginal: d.amountOriginal,
-          currencyOriginal: d.currencyOriginal,
-          amountILS: d.amountILS,
-          payer: d.payer,
-          hebpayer: d.hebpayer,
-          splitType: d.splitType,
-          isShared: d.isShared,
-          notes: d.notes || '',
-          country: d.country
-        });
-      });
-      set({ expenses });
-      get().calculateBalances();
+  const users: User[] = [];
+  snap.forEach((doc) => {
+    const d = doc.data() as any;
+
+    users.push({
+      id: doc.id,
+      name: d.name || '',
+      hebName: d.hebName || '',
+      totalPaid: d.totalPaid || 0,
+      totalOwed: d.totalOwed || 0,
+      netBalance: d.netBalance || 0,
+      color: d.color || 'primary',
+      picture: d.picture || '',
+      email: d.email || '',
     });
+  });
+  set({ users });
+
+});
+
+const unsubExpenses = onSnapshot(query(expensesRef, orderBy('createdAt', 'desc')), (snap) => {
+  const expenses: Expense[] = [];
+  snap.forEach((doc) => {
+    const d = doc.data() as any;
+    expenses.push({
+      id: doc.id,
+      createdAt: d.createdAt?.toDate?.() || new Date(),
+      date: d.date?.toDate?.() || new Date(),
+      merchant: d.merchant,
+      category: d.category,
+      amountOriginal: d.amountOriginal,
+      currencyOriginal: d.currencyOriginal,
+      amountILS: d.amountILS,
+      payer: d.payer,          // חשוב: 'Omri' / 'Noa'
+      hebpayer: d.hebpayer,    // 'עמרי' / 'נועה'
+      splitType: d.splitType,
+      isShared: d.isShared,
+      notes: d.notes || '',
+      country: d.country
+    });
+  });
+  set({ expenses });
+  // רק אם כבר יש משתמשים נטענים – נחשב
+  if (get().users.length > 0) {
+    get().calculateBalances();
+  }
+});
 
     const unsubRates = onSnapshot(ratesRef, (snap) => {
       const d = snap.data() as any;
@@ -129,7 +136,7 @@ export const useStore = create<AppState>((set, get) => ({
       date: Timestamp.fromDate(expenseData.date || new Date()),
       amountILS: Math.round(amountILS),
       isShared: expenseData.splitType === 'equal',
-      hebpayer: expenseData.payer === 'Omri' ? 'עמרי' : 'נועה',
+      hebpayer: expenseData.payer === state.users[0].name ? state.users[0].hebName : state.users[1].hebName,
       country: expenseData.country
     });
   },
@@ -158,49 +165,55 @@ export const useStore = create<AppState>((set, get) => ({
   // 3) חישובים מקומיים (כמו שהיה)
   calculateBalances: () => {
     const state = get();
-    const { expenses } = state;
+  const { expenses, users, trip } = state;
 
-    const omriStats = { totalPaid: 0, totalOwed: 0 };
-    const noaStats = { totalPaid: 0, totalOwed: 0 };
+  // אם אין עדיין משתמשים – אל תחשב כלום
+  if (!users || users.length === 0) {
+    return;
+  }
 
-    expenses.forEach(expense => {
-      if (expense.payer === 'Omri') {
-        omriStats.totalPaid += expense.amountILS;
-        if (expense.isShared) omriStats.totalOwed += expense.amountILS;
-      } else {
-        noaStats.totalPaid += expense.amountILS;
-        if (expense.isShared) noaStats.totalOwed += expense.amountILS;
-      }
-    });
+  // אתחול totals לכולם (גם אם יהיו עוד משתמשים בעתיד)
+  const totals: Record<string, { totalPaid: number; totalOwed: number }> = {};
+  users.forEach(u => { totals[u.name] = { totalPaid: 0, totalOwed: 0 }; });
 
-    const totalExpenses = omriStats.totalPaid + noaStats.totalPaid;
+  // חישוב סכומים
+  expenses.forEach(expense => {
+    const payer = expense.payer; // 'Omri' או 'Noa'
+    if (totals[payer]) {
+      totals[payer].totalPaid += expense.amountILS;
+    }
+    if (expense.isShared) {
+      // חלוקה שוויונית בין כל המשתמשים הקיימים
+      const perPerson = expense.amountILS / users.length;
+      users.forEach(u => {
+        if (totals[u.name]) totals[u.name].totalOwed += perPerson;
+      });
+    } else {
+      // הוצאה אישית – מייחסים רק למי ששילם (או אם יש לך שדה אחר שמגדיר בעלים)
+      if (totals[payer]) totals[payer].totalOwed += expense.amountILS;
+    }
+  });
 
-    set(state => ({
-      users: [
-        {
-          id: '1',
-          name: 'Omri',
-          hebName: 'עמרי',
-          totalPaid: omriStats.totalPaid,
-          totalOwed: omriStats.totalOwed,
-          netBalance: Math.max(omriStats.totalOwed - noaStats.totalOwed, 0),
-          color: 'primary'
-        },
-        {
-          id: '2',
-          name: 'Noa',
-          hebName: 'נועה',
-          totalPaid: noaStats.totalPaid,
-          totalOwed: noaStats.totalOwed,
-          netBalance: Math.max(noaStats.totalOwed - omriStats.totalOwed, 0),
-          color: 'accent'
-        }
-      ],
-      trip: {
-        ...state.trip,
-        totalExpenses,
-        remainingBudget: state.trip.budget - totalExpenses
-      }
-    }));
+  const totalExpenses = expenses.reduce((sum, e) => sum + e.amountILS, 0);
+
+  // החזרת users מעודכנים בלי להסתמך על אינדקסים
+  const updatedUsers = users.map(u => {
+    const t = totals[u.name] ?? { totalPaid: 0, totalOwed: 0 };
+    return {
+      ...u,
+      totalPaid: Math.round(t.totalPaid),
+      totalOwed: Math.round(t.totalOwed),
+      netBalance: Math.max(Math.round(t.totalOwed - (totalExpenses - t.totalPaid)), 0), // אפשר לשנות לפי הלוגיקה העסקית שלך
+    };
+  });
+
+  set({
+    users: updatedUsers,
+    trip: {
+      ...trip,
+      totalExpenses,
+      remainingBudget: trip.budget - totalExpenses,
+    }
+  });
   }
 }));

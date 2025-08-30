@@ -14,15 +14,10 @@ import { useEffect } from 'react';
 import { useStore } from '@/store/useStore';
 
 const queryClient = new QueryClient();
-const tripId = 'big-trip-2025-2026'; // או מזהה דינמי
+
 const App = () => 
 {
-   const init = useStore(s => s.init);
 
-  useEffect(() => {
-    const unsub = useStore.getState().init(tripId);
-    return () => unsub();
-  }, [init]);
 
   return(
   <QueryClientProvider client={queryClient}>
@@ -34,10 +29,10 @@ const App = () =>
 
               <Routes>
                 <Route path="/" element={<Index />} />
-                <Route path="/balance" element={<Balance />} />
+                {/* <Route path="/balance" element={<Balance />} />
                 <Route path="/expenses" element={<Expenses />} />
                 <Route path="/analytics" element={<Analytics />} />
-                <Route path="/settings" element={<Settings />} />
+                <Route path="/settings" element={<Settings />} /> */}
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

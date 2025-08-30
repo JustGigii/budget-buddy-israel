@@ -34,6 +34,25 @@ export function DailySpending({ expenses }: DailySpendingProps) {
       dayName: format(day, 'EEE', { locale: he }),
     };
   });
+
+  const dailyexpense = expenses.filter(expense => {
+    const expenseDate = new Date(expense.date);
+    return format(expenseDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
+  })
+ 
+  const categoryStats = dailyexpense.reduce((acc, expense) => {
+    if (!acc[expense.category]) {
+    acc[expense.category] = { total: 0, count: 0 }; 
+  }
+    acc[expense.category].total = (acc[expense.category].total || 0) + expense.amountILS;
+    acc[expense.category].count = (acc[expense.category].count || 0) + 1;
+    return acc;
+  }, {} as Record<string, { total: number; count: number }>);
+
+  const topCategory = Object.entries(categoryStats).sort(([,a], [,b]) => b.total - a.total)[0];
+
+
+
   const totalweek = (date) => {
   const now = new Date();
 
@@ -68,18 +87,7 @@ const weekelypay = expenses.filter(expense => {
     };
   });
 
-  const weekdayData = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'].map((day, index) => {
-    const dayExpenses = expenses.filter(expense => {
-      return new Date(expense.date).getDay() === index;
-    });
-    
-    return {
-      day,
-      total: dayExpenses.reduce((sum, expense) => sum + expense.amountILS, 0),
-      count: dayExpenses.length,
-      average: dayExpenses.length > 0 ? dayExpenses.reduce((sum, expense) => sum + expense.amountILS, 0) / dayExpenses.length : 0,
-    };
-  });
+
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -99,7 +107,7 @@ const weekelypay = expenses.filter(expense => {
     }
     return null;
   };
-
+;
   return (
     <div className="space-y-6">
       {/* Daily Spending This Month */}
@@ -138,21 +146,37 @@ const weekelypay = expenses.filter(expense => {
               ))}
             
             <div className="p-4 bg-accent/10 rounded-lg border border-accent/20">
-              <h4 className="font-medium mb-2">ממוצע יומי</h4>
-              <div className="space-y-1 text-sm">
-                <div className="flex justify-between">
-                  <span>סכום:</span>
-                  <span className="font-medium rtl-numbers">
-                    ₪{Math.round(expenses.reduce((sum, e) => sum + e.amountILS, 0) / Math.max(1, new Date().getDate())).toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span>הוצאות:</span>
-                  <span className="font-medium rtl-numbers">
-                    {Math.round(expenses.length / Math.max(1, new Date().getDate()))}
-                  </span>
-                </div>
-              </div>
+             {topCategory ? (
+              <>
+                 <h4 className="  font-medium ">
+                    :קטוגיה מובלה 
+                  </h4>
+                    <h3 className="text-center  font-bold p-0">{topCategory[0].toLocaleString()}</h3>
+                  <div className="space-y-1 text-sm">
+                    <div className="flex justify-between">
+                      <span className="font-medium rtl-numbers">₪{topCategory[1].total.toLocaleString()}</span>
+                      <span>:סה"כ</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium rtl-numbers">{topCategory[1].count}</span>
+                      <span>:הוצאות</span>
+                    </div>
+                  </div>
+                  </>
+             ):
+             (
+              <>
+                 <h4 className="  font-medium mb-2">
+                    קטוגיה מובלה 
+                  </h4>
+                  <h3 className="text-center">
+                    אין נתונים
+                   </h3>
+                  </>
+             )}
+                
+                
+             
             </div>
             
             <div className="p-4 bg-warning/10 rounded-lg border border-warning/20">

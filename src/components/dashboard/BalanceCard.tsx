@@ -2,16 +2,17 @@ import { Users, TrendingUp, TrendingDown, Minus, Scale } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useStore } from '@/store/useStore';
-import omriProfile from '@/assets/omri-profile.jpg';
-import noaProfile from '@/assets/noa-profile.jpg';
+// import omriProfile from '@/assets/omri-profile.jpg';
+// import noaProfile from '@/assets/noa-profile.jpg';
 
 export function BalanceCard() {
-  const { users } = useStore();
-  const [omri, noa] = users;
   
+  const users  = useStore(s => s.users);
+  const [omri, noa] = users;
+  if (!omri || !noa) return null;
   const totalPaid = omri.totalPaid + noa.totalPaid;
-  const omriPercentage = totalPaid > 0 ? (omri.totalPaid / totalPaid) * 100 : 50;
-  const noaPercentage = totalPaid > 0 ? (noa.totalPaid / totalPaid) * 100 : 50;
+  const omriPercentage = (totalPaid > 0 ? (omri.totalPaid / totalPaid) * 100 : 50 );
+  const noaPercentage = (totalPaid > 0 ? (noa.totalPaid / totalPaid) * 100 : 50);
   
 
  const maxuser = omri.netBalance > noa.netBalance ? omri :omri.netBalance == noa.netBalance ? null : noa;
@@ -69,7 +70,7 @@ export function BalanceCard() {
             <div className="relative p-4 text-center">
               <div className="w-16 h-16 mx-auto mb-3 rounded-full overflow-hidden ring-2 ring-primary/30 shadow-lg">
                 <img 
-                  src={omriProfile} 
+                  src={omri.picture} 
                   alt={omri.name}
                   className="w-full h-full object-cover"
                 />
@@ -101,7 +102,7 @@ export function BalanceCard() {
             <div className="relative p-4 text-center">
               <div className="w-16 h-16 mx-auto mb-3 rounded-full overflow-hidden ring-2 ring-accent/30 shadow-lg">
                 <img 
-                  src={noaProfile} 
+                  src={noa.picture} 
                   alt={noa.hebName}
                   className="w-full h-full object-cover"
                 />
