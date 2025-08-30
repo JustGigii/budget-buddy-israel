@@ -11,14 +11,14 @@ import LoginPage from '@/pages/LoginPage';
 import { useAuth } from '@/hooks/useAuth';
 import Analytics from './Analytics';
 import { Card } from '@/components/ui/card';
-
+import { useStoreReadyNoFlags } from "@/hooks/useStoreReadyNoFlags";
 const tripId = 'big-trip-2025-2026';
 
 const Index = () => {
   // ✅ כל ההוקים תמיד בטופ-לבל ובאותו סדר
   const { user, loading } = useAuth();
   const init = useStore(s => s.init);
-  const {trip, users, expenses} = useStore();
+  const {trip, users} = useStore();
 
 
   const [showAddExpense, setShowAddExpense] = useState(false);
@@ -40,16 +40,18 @@ const Index = () => {
   }, [loading, user?.uid, init]);
 
   // ⏳ מסך טעינה לאימות
-  if (loading || trip.id === '' || users.length === 0 || expenses.length === 0) {
+  const isReady = useStoreReadyNoFlags();
+  if ( !isReady ) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      console.log('loading...'),
+       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-pulse text-muted-foreground">טוען…</div>
       </div>
     );
   }
 
   // 🔐 אין משתמש – מסך התחברות
-  if (!user) {
+  if (!user ) {
     return (
       <div className="min-h-screen gradient-warm">
         <div className="w-full h-full mx-auto px-4 py-6 space-y-6">
@@ -61,7 +63,7 @@ const Index = () => {
 
   // 🎯 יש user – ייתכן שהדאטה עוד נטען, לכן לא ניפול על undefined
   const total = trip?.totalExpenses ?? 0;
-
+  
   return (
     <div className="min-h-screen gradient-warm">
       <div className="container mx-auto px-4 py-6 space-y-6">

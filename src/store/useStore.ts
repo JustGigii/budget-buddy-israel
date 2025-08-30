@@ -30,7 +30,7 @@ export const useStore = create<AppState>((set, get) => ({
 
   // 1) התחברות ל־onSnapshot (טריפ, יוזרים, הוצאות, שערים)
   init: (tripId: string) => {
-
+    
     const tripRef = doc(db, 'trips', tripId);
     const usersRef = collection(db, 'trips', tripId, 'users');
     const expensesRef = collection(db, 'trips', tripId, 'expenses');
@@ -96,7 +96,9 @@ const unsubExpenses = onSnapshot(query(expensesRef, orderBy('createdAt', 'desc')
   });
   set({ expenses });
   // רק אם כבר יש משתמשים נטענים – נחשב
+
   if (get().users.length > 0) {
+    console.log('calculateBalances');
     get().calculateBalances();
   }
 });
