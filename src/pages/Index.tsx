@@ -39,11 +39,15 @@ const Index = () => {
     };
   }, [loading, user?.uid, init]);
 
+
+
+
+  
   // ⏳ מסך טעינה לאימות
   const isReady = useStoreReadyNoFlags();
-  if ( !isReady ) {
+  if ( (!isReady&& user) || loading) {
     return (
-      console.log('loading...'),
+
        <div className="min-h-screen flex items-center justify-center">
         <div className="animate-pulse text-muted-foreground">טוען…</div>
       </div>

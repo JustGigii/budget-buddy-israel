@@ -98,7 +98,7 @@ const unsubExpenses = onSnapshot(query(expensesRef, orderBy('createdAt', 'desc')
   // רק אם כבר יש משתמשים נטענים – נחשב
 
   if (get().users.length > 0) {
-    console.log('calculateBalances');
+
     get().calculateBalances();
   }
 });
