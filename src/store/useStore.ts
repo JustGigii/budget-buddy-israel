@@ -185,11 +185,9 @@ const unsubExpenses = onSnapshot(query(expensesRef, orderBy('createdAt', 'desc')
       totals[payer].totalPaid += expense.amountILS;
     }
     if (expense.isShared) {
+      totals[payer].totalOwed += expense.amountILS;
       // חלוקה שוויונית בין כל המשתמשים הקיימים
-      const perPerson = expense.amountILS / users.length;
-      users.forEach(u => {
-        if (totals[u.name]) totals[u.name].totalOwed += perPerson;
-      });
+
     } else {
       // הוצאה אישית – מייחסים רק למי ששילם (או אם יש לך שדה אחר שמגדיר בעלים)
       if (totals[payer]) totals[payer].totalOwed += expense.amountILS;
