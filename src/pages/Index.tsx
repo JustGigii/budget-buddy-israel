@@ -95,7 +95,7 @@ const Index = () => {
           <Card>
             <Analytics />
           </Card>
-          {users.find(user => user.email === user.email) &&(
+          {users.find(userapp => user.email === userapp.email) &&(
           /* כפתור צף להוספת הוצאה */
           <AddExpenseSheet>
             <Button
