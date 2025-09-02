@@ -96,7 +96,7 @@ const Index = () => {
             <Analytics />
           </Card>
           {users.find(userapp => user.email === userapp.email) &&(
-          /* כפתור צף להוספת הוצאה */
+          /* כפתור צף להוספת הוצאה  h*/
           <AddExpenseSheet>
             <Button
               className="fixed bottom-6 left-6 h-14 w-14 rounded-full gradient-primary shadow-float hover:shadow-elegant transition-bounce z-50 border border-solid border-gray"
